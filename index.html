@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Super Admin Dashboard - College Management (Pure CSS)</title>
+  <style>
+    /* ========== Variables & Reset ========== */
+    :root{
+      --bg:#f3f6f9;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent-1: linear-gradient(180deg,#6d28d9,#8b5cf6); /* left purple */
+      --accent-2: linear-gradient(180deg,#0ea5a0,#06b6d4); /* teal buttons */
+      --primary:#2563eb; /* blue card */
+      --green:#16a34a;
+      --yellow:#f59e0b;
+      --danger:#ef4444;
+      --shadow: 0 6px 18px rgba(20,20,40,0.08);
+      --radius:12px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:Inter,ui-sans-serif,system-ui,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:var(--bg);color:#111}
+    img{max-width:100%;display:block}
+
+    /* ========== Layout ========== */
+    .wrap{display:flex;gap:20px;min-height:100vh;padding:18px;align-items:flex-start}
+    /* Sidebar */
+    .sidebar{
+      width:260px;background:var(--accent-1);color:#fff;border-radius:14px;padding:28px 18px;box-shadow:var(--shadow);flex-shrink:0;display:flex;flex-direction:column;gap:18px;position:relative;
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+    .brand .logo{width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:18px}
+    .sidebar .role{background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;font-size:12px;width:max-content}
+
+    /* Nav Items */
+    .nav{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+    .nav button{
+      display:flex;align-items:center;gap:12px;border:none;background:transparent;color:rgba(255,255,255,0.95);padding:12px;border-radius:10px;cursor:pointer;font-weight:600;text-align:left
+    }
+    .nav button .dot{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center}
+    .nav button.active{background:linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));box-shadow:inset 0 1px 0 rgba(255,255,255,0.03)}
+    .nav button .label{flex:1}
+
+    /* Main content */
+    .main{
+      flex:1;background:transparent;padding:6px 8px 40px;min-width:0;
+    }
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;
+    }
+    .search{flex:1;display:flex;gap:12px;align-items:center}
+    .search input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid #e6e9ef;background:#fff;box-shadow:0 2px 6px rgba(16,24,40,0.03)}
+    .userbox{display:flex;gap:12px;align-items:center}
+    .user-avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+
+    /* Dashboard heading */
+    h1{font-size:20px;margin:12px 0 10px}
+    /* Cards row */
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+    .card{background:var(--card);padding:18px;border-radius:10px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .card .left{display:flex;flex-direction:column;gap:6px}
+    .card .num{font-size:20px;font-weight:700}
+    .card .label{color:var(--muted);font-size:13px}
+
+    /* Quick actions */
+    .quick{background:var(--card);padding:12px;border-radius:10px;box-shadow:var(--shadow);margin-bottom:14px}
+    .quick .row{display:flex;gap:12px;flex-wrap:wrap}
+    .quick .btn{flex:1;min-width:140px;padding:12px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
+    .btn.blue{background:var(--primary);color:#fff}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.cyan{background:linear-gradient(90deg,#06b6d4,#06b6d4);color:#fff}
+    .btn.black{background:#111;color:#fff}
+    .btn.yellow{background:var(--yellow);color:#111}
+    .btn.grey{background:#6b7280;color:#fff}
+
+    /* Table card */
+    .table-card{background:var(--card);padding:14px;border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+    .table-card header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .recent-table{width:100%;border-collapse:collapse}
+    .recent-table thead th{text-align:left;padding:12px 8px;background:#fbfdff;border-bottom:1px solid #eef2f7;font-weight:700;color:#111}
+    .recent-table tbody td{padding:12px 8px;border-bottom:1px solid #f0f2f6;color:#333}
+    .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#e6f7ff;color:#0c859e;font-weight:700;font-size:12px}
+
+    /* responsive adjustments for table */
+    .table-wrapper{overflow:auto}
+
+    /* mobile: collapse sidebar to top */
+    .mobile-toggle{display:none}
+
+    /* ========== Responsive ========== */
+    @media (max-width:1100px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .sidebar{width:220px}
+    }
+    @media (max-width:900px){
+      .wrap{flex-direction:column;padding:12px}
+      .sidebar{width:100%;display:flex;flex-direction:row;gap:12px;padding:12px 14px;align-items:center;border-radius:10px}
+      .nav{display:flex;flex-direction:row;gap:8px;overflow:auto}
+      .nav button{padding:10px;border-radius:8px;min-width:90px}
+      .mobile-toggle{display:block;background:transparent;border:none;color:#fff;padding:8px;border-radius:8px;margin-left:auto}
+      .brand{font-size:16px}
+      .main{width:100%}
+      .cards{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:640px){
+      .cards{grid-template-columns:1fr}
+      .quick .btn{min-width:unset;flex: 1 0 calc(50% - 8px)}
+      .nav button{min-width:82px}
+      .search{display:none}
+      .topbar{gap:8px}
+    }
+
+    /* small visual niceties */
+    .small-muted{font-size:13px;color:var(--muted)}
+    .right-chip{background:#fff;padding:6px 10px;border-radius:999px;border:1px solid #eef2f7}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="brand">
+          <div class="logo">👑</div>
+          <div>
+            <div style="font-size:16px">Super Admin</div>
+            <div class="small-muted" style="font-weight:600;font-size:12px">College Management</div>
+          </div>
+        </div>
+        <button class="mobile-toggle" id="toggleSidebar" aria-label="toggle">☰</button>
+      </div>
+
+      <div class="role">Super Administrator</div>
+
+      <nav class="nav" id="nav">
+        <button class="active" data-section="dashboard">
+          <div class="dot">🏠</div>
+          <div class="label">Dashboard</div>
+        </button>
+        <button data-section="admins">
+          <div class="dot">🧑‍💼</div>
+          <div class="label">Manage Admins</div>
+        </button>
+        <button data-section="users">
+          <div class="dot">👥</div>
+          <div class="label">Manage Users <span style="background:#ffedd5;color:#bf360c;padding:2px 6px;border-radius:999px;margin-left:6px;font-weight:700;font-size:12px">2</span></div>
+        </button>
+        <button data-section="roles">
+          <div class="dot">🔐</div>
+          <div class="label">Roles</div>
+        </button>
+        <button data-section="permissions">
+          <div class="dot">⚙️</div>
+          <div class="label">Permissions</div>
+        </button>
+        <button data-section="logs">
+          <div class="dot">📜</div>
+          <div class="label">Audit Logs</div>
+        </button>
+        <button data-section="settings">
+          <div class="dot">⚙️</div>
+          <div class="label">System Settings</div>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="topbar">
+        <div class="search">
+          <input type="search" placeholder="Search..." />
+        </div>
+        <div class="userbox">
+          <div class="right-chip small-muted">Super Administrator</div>
+          <div class="user-avatar">S</div>
+        </div>
+      </div>
+
+      <h1>👑 Super Admin Dashboard</h1>
+
+      <!-- Stat cards -->
+      <section class="cards" aria-label="stats">
+        <div class="card">
+          <div class="left">
+            <div class="num">23</div>
+            <div class="label">Total Users</div>
+          </div>
+          <div>👥</div>
+        </div>
+        <div class="card">
+          <div class="left">
+            <div class="num">1</div>
+            <div class="label">Total Admins</div>
+          </div>
+          <div>🧑‍💼</div>
+        </div>
+        <div class="card">
+          <div class="left">
+            <div class="num">20</div>
+            <div class="label">Regular Users</div>
+          </div>
+          <div>🔵</div>
+        </div>
+        <div class="card">
+          <div class="left">
+            <div class="num">23</div>
+            <div class="label">Active Users</div>
+          </div>
+          <div>✅</div>
+        </div>
+      </section>
+
+      <!-- Quick actions -->
+      <section class="quick" aria-label="quick actions">
+        <header style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="font-weight:700">⚡ Quick Actions</div>
+          <div class="small-muted" style="margin-left:auto">Shortcuts</div>
+        </header>
+
+        <div class="row">
+          <button class="btn blue">Manage Admins</button>
+          <button class="btn green">Manage Users</button>
+          <button class="btn cyan">Manage Roles</button>
+          <button class="btn black">Permissions</button>
+          <button class="btn yellow">Audit Logs</button>
+          <button class="btn grey">Settings</button>
+        </div>
+      </section>
+
+      <!-- Recent activities (table) -->
+      <section class="table-card">
+        <header>
+          <div style="font-weight:700">Recent System Activities</div>
+          <div class="small-muted">Latest logins & actions</div>
+        </header>
+
+        <div class="table-wrapper">
+          <table class="recent-table" role="table">
+            <thead>
+              <tr>
+                <th style="min-width:220px">User</th>
+                <th style="min-width:160px">Action</th>
+                <th style="min-width:140px">Time</th>
+                <th style="min-width:160px">IP Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- sample rows -->
+              <tr>
+                <td>
+                  <div style="font-weight:700">Super Administrator</div>
+                  <div class="small-muted">superadmin@example.com</div>
+                </td>
+                <td><span class="tag">Login</span></td>
+                <td>Dec 02, 2025 12:59</td>
+                <td>::1</td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div style="font-weight:700">vikram</div>
+                  <div class="small-muted">vikram@gmail.com</div>
+                </td>
+                <td><span class="tag">Api login attempt</span></td>
+                <td>Dec 02, 2025 10:36</td>
+                <td>192.168.1.13</td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div style="font-weight:700">kabir</div>
+                  <div class="small-muted">kabir@gmail.com</div>
+                </td>
+                <td><span class="tag">Api login success</span></td>
+                <td>Dec 01, 2025 16:33</td>
+                <td>192.168.1.13</td>
+              </tr>
+
+              <!-- more sample rows to show vertical scroll -->
+              <tr><td><div style="font-weight:700">vikram</div><div class="small-muted">vikram@gmail.com</div></td><td><span class="tag">Api logout</span></td><td>Dec 01, 2025 16:32</td><td>192.168.1.13</td></tr>
+              <tr><td><div style="font-weight:700">vikram</div><div class="small-muted">vikram@gmail.com</div></td><td><span class="tag">Api login attempt</span></td><td>Dec 01, 2025 16:26</td><td>192.168.1.13</td></tr>
+              <tr><td><div style="font-weight:700">muskan</div><div class="small-muted">muskan@gmail.com</div></td><td><span class="tag">Login</span></td><td>Nov 30, 2025 09:15</td><td>192.168.1.14</td></tr>
+              <tr><td><div style="font-weight:700">anjali</div><div class="small-muted">anjali@mail.com</div></td><td><span class="tag">Reset Password</span></td><td>Nov 29, 2025 14:08</td><td>192.168.1.15</td></tr>
+
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Small JS: active nav + mobile toggle
+    const nav = document.getElementById('nav');
+    const buttons = nav.querySelectorAll('button');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Mobile toggle to collapse/show sidebar items
+    const toggle = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    let collapsed = false;
+    toggle.addEventListener('click', ()=>{
+      collapsed = !collapsed;
+      if(window.innerWidth <= 900){
+        sidebar.style.flexDirection = collapsed ? 'column' : 'row';
+        // small visual: toggle a CSS transform
+        sidebar.style.transform = collapsed ? 'translateY(0)' : 'translateY(0)';
+        // Show/hide nav: simply toggle display on nav
+        nav.style.display = collapsed ? 'flex' : 'none';
+      } else {
+        // on desktop, do nothing
+      }
+    });
+
+    // on resize restore nav visibility
+    window.addEventListener('resize', ()=>{
+      if(window.innerWidth > 900) nav.style.display = 'flex';
+      else nav.style.display = 'flex'; // keep visible by default on small (user can hide via toggle)
+    });
+  </script>
+</body>
+</html>
